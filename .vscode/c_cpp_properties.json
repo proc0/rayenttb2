@@ -1,0 +1,15 @@
+{
+  "configurations": [
+    {
+      "name": "Win32",
+      "includePath": [
+        "${workspaceFolder}/include/",
+        "${workspaceFolder}/build/_deps/entt-src/src/"
+      ],
+      "cStandard": "c99",
+      "cppStandard": "gnu++20",
+      "intelliSenseMode": "gcc-x64"
+    }
+  ],
+  "version": 4
+}

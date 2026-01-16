@@ -1,0 +1,7 @@
+#pragma once
+
+#define PROJECT_NAME "@PROJECT_NAME@"
+#define VERSION "@PROJECT_VERSION@"
+#define DEBUG @DEBUG@
+#define DATE_BUILD "@DATE_BUILD@"
+#define DIR_ASSETS "@DIR_ASSETS@"
