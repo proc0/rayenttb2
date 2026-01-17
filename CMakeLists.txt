@@ -14,6 +14,7 @@ option(USE_RAYLIB_FETCH "Fetch and build from source" ON)
 # TODO: option(USE_RAYLIB_CUSTOM "Fetch and custom build" OFF)
 option(USE_RAYLIB_LOCAL "Use a local static build" OFF)
 option(USE_ENTT "Use EnTT ECS" ON)
+option(USE_BOX2D "Use Box2D physics" ON)
 
 set(DIR_SOURCE "src" CACHE STRING "Project source files folder name")
 set(DIR_INCLUDE "include" CACHE STRING "Project header files folder name")
@@ -176,6 +177,12 @@ endif()
 
 # Fetch Raylib
 if(USE_RAYLIB_FETCH)
+    # don't build the supplied examples
+    set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) 
+    set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(CUSTOMIZE_BUILD OFF CACHE BOOL "" FORCE) 
+
     Fetch(raylib "https://github.com/raysan5/raylib.git" head)
 
     list(APPEND LIBRARIES raylib)
@@ -185,6 +192,18 @@ if(USE_ENTT)
     Fetch(EnTT "https://github.com/skypjack/entt" head)
 
     list(APPEND LIBRARIES EnTT)
+endif()
+
+if(USE_BOX2D)
+    # don't build the supplied examples
+    set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+    set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+
+    set(dep box2d)
+    Fetch(${dep} https://github.com/erincatto/box2d.git head)
+
+    # add the dependency here to be linked
+    list(APPEND LIBRARIES ${dep})
 endif()
 
 if(IS_WEB)
