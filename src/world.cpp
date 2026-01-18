@@ -1,4 +1,5 @@
 #include "world.hpp"
+#include "raylib.h"
 
 void DrawPolygonFcn( const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context ) {
     // SampleContext* sampleContext = static_cast<SampleContext*>( context );
@@ -14,6 +15,7 @@ void DrawSolidPolygonFcn( b2Transform transform, const b2Vec2* vertices, int ver
 void DrawCircleFcn( b2Vec2 center, float radius, b2HexColor color, void* context ) {
     // SampleContext* sampleContext = static_cast<SampleContext*>( context );
     // DrawCircle( sampleContext->draw, center, radius, color );
+    DrawCircleLines(static_cast<int>(center.x), static_cast<int>(center.y), radius, BLACK);
 }
 
 void DrawSolidCircleFcn( b2Transform transform, float radius, b2HexColor color, void* context ) {
@@ -29,6 +31,7 @@ void DrawSolidCapsuleFcn( b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, 
 void DrawLineFcn( b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context ) {
     // SampleContext* sampleContext = static_cast<SampleContext*>( context );
     // DrawLine( sampleContext->draw, p1, p2, color );
+    DrawLine(static_cast<int>(p1.x), static_cast<int>(p1.y), static_cast<int>(p2.x), static_cast<int>(p2.y), YELLOW);
 }
 
 void DrawTransformFcn( b2Transform transform, void* context ) {
@@ -39,6 +42,7 @@ void DrawTransformFcn( b2Transform transform, void* context ) {
 void DrawPointFcn( b2Vec2 p, float size, b2HexColor color, void* context ) {
     // SampleContext* sampleContext = static_cast<SampleContext*>( context );
     // DrawPoint( sampleContext->draw, p, size, color );
+    DrawCircle(static_cast<int>(p.x), static_cast<int>(p.y), size, BLACK); 
 }
 
 void DrawStringFcn( b2Vec2 p, const char* s, b2HexColor color, void* context ) {
@@ -67,6 +71,8 @@ void World::load(){
     count_ = 0;
     spawnParticle(100.0f, 100.0f);
 
+    // b2SetLengthUnitsPerMeter( 60.0f );
+
     debugDraw = b2DefaultDebugDraw();
     debugDraw.DrawPolygonFcn = DrawPolygonFcn;
     debugDraw.DrawSolidPolygonFcn = DrawSolidPolygonFcn;
@@ -77,6 +83,7 @@ void World::load(){
     debugDraw.DrawTransformFcn = DrawTransformFcn;
     debugDraw.DrawPointFcn = DrawPointFcn;
     debugDraw.DrawStringFcn = DrawStringFcn;
+
     createWorld();
     createGround();
 
@@ -175,7 +182,7 @@ void World::spawnDebris()
 }
 
 void World::render() const {
-    DrawRectangleGradientH(0, 0, screenWidth, screenHeight, BLUE, ORANGE);
+    // DrawRectangleGradientH(0, 0, screenWidth, screenHeight, BLUE, ORANGE);
     auto const view = _registry.view<Position>();
     for (auto e : view) {
         Position pos = _registry.get<Position>(e);
@@ -208,10 +215,13 @@ void World::update(){
 
     MovementSystem(*this);
     b2World_Step( worldId, timeStep, 4 );
+
     b2World_Draw( worldId, &debugDraw );
 }
 
 void World::unload(){
     UnloadSound(splat);
+    b2DestroyWorld( worldId );
+    worldId = b2_nullWorldId;
 }
 

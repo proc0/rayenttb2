@@ -24,6 +24,7 @@ static inline constexpr auto RESIZE_COOLDOWN = std::chrono::milliseconds(300);
 
 class Game {
     World world;
+    // Camera2D camera;
     Display display;
     entt::registry registry_;
 

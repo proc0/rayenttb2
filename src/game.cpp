@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "raylib.h"
 
 void Game::update(){
     if(state == END) return;
@@ -60,17 +61,29 @@ void Game::update(){
 
 void Game::render() const {
     BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(GRAY);
+
         world.render();
         display.render();
 
-        if(state == PLAY){
-            DrawCircleV(GetMousePosition(), 40, YELLOW);
-        }
+        // if(state == PLAY){
+        //     DrawCircleV(GetMousePosition(), 40, YELLOW);
+        // }
     EndDrawing();
+    // BeginMode2D(camera);
+    //     world.render();
+    // EndMode2D();
 }
 
 void Game::load(){
+    // camera.offset = { 0.0f, 0.0f };
+    // camera.target = { 0.0f, 0.0f };
+    // camera.rotation = 0.0f;
+    // camera.zoom = 1.0f;
+    // camera.up = { 0.0f, 1.0f };
+    // camera.fovy = 45.0f;
+    // camera.projection = CAMERA_PERSPECTIVE;
+
     world.load();
     display.load();
 }
