@@ -7,11 +7,12 @@
 #include <box2d/types.h>
 #include <box2d/box2d.h>
 #include <box2d/math_functions.h>
+#include "raylibDebug.hpp"
 
 #include "config.h"
 
 #define URI_SOUND_SPLAT "splat1.wav"
-#define ENT_COUNT 20
+#define ENT_COUNT 50
 #define RAND_LIMIT 32767
 #define RAND_SEED 12345
 
@@ -81,10 +82,10 @@ class World {
     BodyUserData m_bodyUserData[ENT_COUNT];
     Sound splat;
     b2WorldId worldId = b2_nullWorldId;
-    b2DebugDraw debugDraw;
+    RaylibDebugDraw raylibDebugDraw;
+    // b2DebugDraw& debugDraw;
     float timeStep = 1.0f/60.0f;
     int count_;
-    short entCount = 20;
 
     public:
     int screenWidth;

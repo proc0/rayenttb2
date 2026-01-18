@@ -1,5 +1,4 @@
 #include "world.hpp"
-#include "raylib.h"
 
 void DrawPolygonFcn( const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context ) {
     // SampleContext* sampleContext = static_cast<SampleContext*>( context );
@@ -72,17 +71,20 @@ void World::load(){
     spawnParticle(100.0f, 100.0f);
 
     // b2SetLengthUnitsPerMeter( 60.0f );
+    // Setup debug draw
+    // raylibDebugDraw = RaylibDebugDraw(30.0f);
+    // debugDraw = raylibDebugDraw.draw;
 
-    debugDraw = b2DefaultDebugDraw();
-    debugDraw.DrawPolygonFcn = DrawPolygonFcn;
-    debugDraw.DrawSolidPolygonFcn = DrawSolidPolygonFcn;
-    debugDraw.DrawCircleFcn = DrawCircleFcn;
-    debugDraw.DrawSolidCircleFcn = DrawSolidCircleFcn;
-    debugDraw.DrawSolidCapsuleFcn = DrawSolidCapsuleFcn;
-    debugDraw.DrawLineFcn = DrawLineFcn;
-    debugDraw.DrawTransformFcn = DrawTransformFcn;
-    debugDraw.DrawPointFcn = DrawPointFcn;
-    debugDraw.DrawStringFcn = DrawStringFcn;
+    // debugDraw = b2DefaultDebugDraw();
+    // debugDraw.DrawPolygonFcn = DrawPolygonFcn;
+    // debugDraw.DrawSolidPolygonFcn = DrawSolidPolygonFcn;
+    // debugDraw.DrawCircleFcn = DrawCircleFcn;
+    // debugDraw.DrawSolidCircleFcn = DrawSolidCircleFcn;
+    // debugDraw.DrawSolidCapsuleFcn = DrawSolidCapsuleFcn;
+    // debugDraw.DrawLineFcn = DrawLineFcn;
+    // debugDraw.DrawTransformFcn = DrawTransformFcn;
+    // debugDraw.DrawPointFcn = DrawPointFcn;
+    // debugDraw.DrawStringFcn = DrawStringFcn;
 
     createWorld();
     createGround();
@@ -216,7 +218,8 @@ void World::update(){
     MovementSystem(*this);
     b2World_Step( worldId, timeStep, 4 );
 
-    b2World_Draw( worldId, &debugDraw );
+    raylibDebugDraw.DrawWorld(worldId);
+    // b2World_Draw( worldId, &raylibDebugDraw.draw );
 }
 
 void World::unload(){
