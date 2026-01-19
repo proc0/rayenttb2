@@ -1,54 +1,5 @@
 #include "world.hpp"
 
-void DrawPolygonFcn( const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawPolygon( sampleContext->draw, vertices, vertexCount, color );
-}
-
-void DrawSolidPolygonFcn( b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color,
-                          void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawSolidPolygon( sampleContext->draw, transform, vertices, vertexCount, radius, color );
-}
-
-void DrawCircleFcn( b2Vec2 center, float radius, b2HexColor color, void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawCircle( sampleContext->draw, center, radius, color );
-    DrawCircleLines(static_cast<int>(center.x), static_cast<int>(center.y), radius, BLACK);
-}
-
-void DrawSolidCircleFcn( b2Transform transform, float radius, b2HexColor color, void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawSolidCircle( sampleContext->draw, transform, radius, color );
-}
-
-void DrawSolidCapsuleFcn( b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawSolidCapsule( sampleContext->draw, p1, p2, radius, color );
-}
-
-void DrawLineFcn( b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawLine( sampleContext->draw, p1, p2, color );
-    DrawLine(static_cast<int>(p1.x), static_cast<int>(p1.y), static_cast<int>(p2.x), static_cast<int>(p2.y), YELLOW);
-}
-
-void DrawTransformFcn( b2Transform transform, void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawTransform( sampleContext->draw, transform, 1.0f );
-}
-
-void DrawPointFcn( b2Vec2 p, float size, b2HexColor color, void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawPoint( sampleContext->draw, p, size, color );
-    DrawCircle(static_cast<int>(p.x), static_cast<int>(p.y), size, BLACK); 
-}
-
-void DrawStringFcn( b2Vec2 p, const char* s, b2HexColor color, void* context ) {
-    // SampleContext* sampleContext = static_cast<SampleContext*>( context );
-    // DrawWorldString( sampleContext->draw, &sampleContext->camera, p, color, s );
-}
-
 void MovementSystem(World& world) {
     auto view = world.registry().view<Position, Velocity>();
     for (auto [ent, pos, vel] : view.each()) {
@@ -74,17 +25,6 @@ void World::load(){
     // Setup debug draw
     // raylibDebugDraw = RaylibDebugDraw(30.0f);
     // debugDraw = raylibDebugDraw.draw;
-
-    // debugDraw = b2DefaultDebugDraw();
-    // debugDraw.DrawPolygonFcn = DrawPolygonFcn;
-    // debugDraw.DrawSolidPolygonFcn = DrawSolidPolygonFcn;
-    // debugDraw.DrawCircleFcn = DrawCircleFcn;
-    // debugDraw.DrawSolidCircleFcn = DrawSolidCircleFcn;
-    // debugDraw.DrawSolidCapsuleFcn = DrawSolidCapsuleFcn;
-    // debugDraw.DrawLineFcn = DrawLineFcn;
-    // debugDraw.DrawTransformFcn = DrawTransformFcn;
-    // debugDraw.DrawPointFcn = DrawPointFcn;
-    // debugDraw.DrawStringFcn = DrawStringFcn;
 
     createWorld();
     createGround();

@@ -6,7 +6,7 @@
 #include <chrono>
 #include <raylib.h>
 
-#include "config.h"
+#include "config.h" // IWYU pragma: keep
 #include "display.hpp"
 
 // initial settings
