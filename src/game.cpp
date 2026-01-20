@@ -82,7 +82,7 @@ void Game::load(){
     // camera.up = { 0.0f, 1.0f };
     // camera.fovy = 45.0f;
     // camera.projection = CAMERA_PERSPECTIVE;
-
+    resize();
     world.load();
     display.load();
 }
@@ -140,11 +140,9 @@ void Game::resize() {
 
     if(screenHeight != height || screenWidth != width || state == BEGIN){
         screenWidth = width; 
-        display.screenWidth = width;
-        world.screenWidth = width;
         screenHeight = height;
-        display.screenHeight = height;
-        world.screenHeight = height;
+        world.resize(width, height);
+        display.resize(width, height);
     #if __EMSCRIPTEN__
         SetWindowSize(screenWidth, screenHeight);
     #endif

@@ -14,6 +14,7 @@ class Display {
 
     void load();
     void render() const;
+    void resize(int width, int height);
     void update(World& world);
     void unload();
 };

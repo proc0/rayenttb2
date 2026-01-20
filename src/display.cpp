@@ -14,6 +14,11 @@ void Display::render() const {
     // }
 }
 
+void Display::resize(int width, int height) {
+    screenWidth = width;
+    screenHeight = width;
+}
+
 void Display::update(World& world){
 }
 

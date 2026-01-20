@@ -48,21 +48,22 @@ B2_INLINE float RandomFloatRange( float lo, float hi )
     return r;
 }
 
-typedef struct Position { float x; float y; } Position;
-typedef struct Velocity { float x; float y; } Velocity;
-typedef struct ParticleTag {} ParticleTag;
+// typedef struct Position { float x; float y; } Position;
+// typedef struct Velocity { float x; float y; } Velocity;
+typedef struct CollisionData { b2BodyId bodyId; } CollisionData;
+typedef struct EntityId {} EntityId;
 
-struct BodyUserData
-{
+struct BodyUserData {
     int index;
+    entt::entity entId;
 };
 
 class World {
     b2BodyId m_debrisIds[ENT_COUNT];
     BodyUserData m_bodyUserData[ENT_COUNT];
     b2WorldId worldId = b2_nullWorldId;
-    Debug debug;
-    float timeStep = 1.0f/60.0f;
+    Debug debug = Debug(10.0f);
+    float const timeStep = 1.0f/60.0f;
 
     public:
     int screenWidth;
@@ -76,9 +77,10 @@ class World {
     void load();
     void createWorld();
     void createGround();
-    void spawnDebris();
     void render() const;
-    entt::entity spawnParticle(float x, float y);
+    void resize(int width, int height);
+    void spawnDebris();
+    // entt::entity spawnParticle(float x, float y);
     void update();
     void unload();
 };
