@@ -7,11 +7,10 @@
 #include <box2d/types.h>
 #include <box2d/box2d.h>
 #include <box2d/math_functions.h>
-#include "raylibDebug.hpp"
 
 #include "config.h"
+#include "debug.hpp"
 
-#define URI_SOUND_SPLAT "splat1.wav"
 #define ENT_COUNT 50
 #define RAND_LIMIT 32767
 #define RAND_SEED 12345
@@ -61,12 +60,9 @@ struct BodyUserData
 class World {
     b2BodyId m_debrisIds[ENT_COUNT];
     BodyUserData m_bodyUserData[ENT_COUNT];
-    Sound splat;
     b2WorldId worldId = b2_nullWorldId;
-    RaylibDebugDraw raylibDebugDraw;
-    // b2DebugDraw& debugDraw;
+    Debug debug;
     float timeStep = 1.0f/60.0f;
-    int count_;
 
     public:
     int screenWidth;
@@ -77,7 +73,6 @@ class World {
     World(entt::registry& registry_): _registry(registry_) {};
     ~World() = default;
     
-    int count();
     void load();
     void createWorld();
     void createGround();

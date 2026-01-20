@@ -10,21 +10,10 @@ void MovementSystem(World& world) {
     }
 }
 
-int World::count() {
-    return count_;
-}
-
 void World::load(){
-    std::string pathAssets = DIR_ASSETS;
-    const char* pathSoundSplat = pathAssets.append("/").append(URI_SOUND_SPLAT).c_str();
-    splat = LoadSound(pathSoundSplat);
-    count_ = 0;
     spawnParticle(100.0f, 100.0f);
 
-    // b2SetLengthUnitsPerMeter( 60.0f );
-    // Setup debug draw
-    // raylibDebugDraw = RaylibDebugDraw(30.0f);
-    // debugDraw = raylibDebugDraw.draw;
+    // b2SetLengthUnitsPerMeter( 10.0f );
 
     createWorld();
     createGround();
@@ -50,10 +39,9 @@ void World::createWorld()
     // worldDef.enqueueTask = EnqueueTask;
     // worldDef.finishTask = FinishTask;
     // worldDef.userTaskContext = this;
-    // worldDef.enableSleep = context->enableSleep;
 
-    // todo experimental
-    // worldDef.enableContactSoftening = true;
+    // todo experimental, lookup description
+    worldDef.enableContactSoftening = true;
 
     worldId = b2CreateWorld( &worldDef );
 }
@@ -62,7 +50,7 @@ void World::createGround() {
     b2BodyDef bodyDef = b2DefaultBodyDef();
     b2BodyId groundId = b2CreateBody( worldId, &bodyDef );
 
-    b2Vec2 points[] = { { 40.0f, -40.0f }, { -40.0f, -40.0f }, { -40.0f, 40.0f }, { 40.0f, 40.0f } };
+    b2Vec2 points[] = { { 40.0f, -32.0f }, { -40.0f, -32.0f }, { -40.0f, 32.0f }, { 40.0f, 32.0f } };
 
     b2ChainDef chainDef = b2DefaultChainDef();
     chainDef.count = 4;
@@ -92,7 +80,7 @@ void World::spawnDebris()
     // Debris
     b2BodyDef bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position = { RandomFloatRange( -38.0f, 38.0f ), RandomFloatRange( -38.0f, 38.0f ) };
+    bodyDef.position = { RandomFloatRange( -38.0f, 38.0f ), RandomFloatRange( -28.0f, 28.0f ) };
     bodyDef.rotation = b2MakeRot( RandomFloatRange( -B2_PI, B2_PI ) );
     bodyDef.linearVelocity = { RandomFloatRange( -5.0f, 5.0f ), RandomFloatRange( -5.0f, 5.0f ) };
     bodyDef.angularVelocity = RandomFloatRange( -1.0f, 1.0f );
@@ -108,23 +96,22 @@ void World::spawnDebris()
 
     if (( index + 1 ) % 3 == 0)
     {
-        b2Circle circle = { { 0.0f, 0.0f }, 0.5f };
+        b2Circle circle = { { 0.0f, 0.0f }, 1.0f };
         b2CreateCircleShape( m_debrisIds[index], &shapeDef, &circle );
     }
     else if (( index + 1 ) % 2 == 0)
     {
-        b2Capsule capsule = { { 0.0f, -0.25f }, { 0.0f, 0.25f }, 0.25f };
+        b2Capsule capsule = { { 0.0f, -0.25f }, { 0.0f, 0.25f }, 0.75f };
         b2CreateCapsuleShape( m_debrisIds[index], &shapeDef, &capsule );
     }
     else
     {
-        b2Polygon box = b2MakeBox( 0.4f, 0.6f );
+        b2Polygon box = b2MakeBox( 0.4f, 1.0f );
         b2CreatePolygonShape( m_debrisIds[index], &shapeDef, &box );
     }
 }
 
 void World::render() const {
-    // DrawRectangleGradientH(0, 0, screenWidth, screenHeight, BLUE, ORANGE);
     auto const view = _registry.view<Position>();
     for (auto e : view) {
         Position pos = _registry.get<Position>(e);
@@ -141,12 +128,6 @@ entt::entity World::spawnParticle(float x, float y) {
 }
 
 void World::update(){
-
-    if(IsKeyPressed(KEY_SPACE)){
-        count_++;
-        PlaySound(splat);
-    }
-    
     if (IsKeyPressed(KEY_H)){
         if (IsCursorHidden()){
             ShowCursor();
@@ -158,12 +139,11 @@ void World::update(){
     MovementSystem(*this);
     b2World_Step( worldId, timeStep, 4 );
 
-    raylibDebugDraw.DrawWorld(worldId);
+    debug.DrawWorld(worldId);
     // b2World_Draw( worldId, &raylibDebugDraw.draw );
 }
 
 void World::unload(){
-    UnloadSound(splat);
     b2DestroyWorld( worldId );
     worldId = b2_nullWorldId;
 }

@@ -5,8 +5,6 @@
 #include "world.hpp"
 
 class Display {
-    int count;
-
     public:
     int screenWidth;
     int screenHeight;

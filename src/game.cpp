@@ -11,8 +11,6 @@ void Game::update(){
         }
     }
 
-    world.update();
-
     // toggle pause menu
     if(IsKeyPressed(KEY_ESCAPE)){
         if(state == PAUSE) {
@@ -36,6 +34,7 @@ void Game::update(){
     }
 
     if(state == PLAY){
+        world.update();
         display.update(world);
     }
 

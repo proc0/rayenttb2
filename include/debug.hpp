@@ -1,7 +1,7 @@
 #include "box2d/box2d.h"
 #include "raylib.h"
 
-class RaylibDebugDraw {
+class Debug {
 private:
     float pixelsPerMeter;
     Vector2 offset = { 640.0f, 360.0f };
@@ -22,7 +22,7 @@ private:
     }
 
 public:
-    RaylibDebugDraw(float ppm = 10.0f) : pixelsPerMeter(ppm) {
+    Debug(float ppm = 10.0f) : pixelsPerMeter(ppm) {
         // offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
         
         // Initialize with defaults
@@ -33,7 +33,7 @@ public:
         
         // Set up all callbacks once
         draw.DrawPolygonFcn = [](const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context) {
-            auto* self = static_cast<RaylibDebugDraw*>(context);
+            auto* self = static_cast<Debug*>(context);
             for (int i = 0; i < vertexCount; i++) {
                 Vector2 p1 = self->B2ToScreen(vertices[i]);
                 Vector2 p2 = self->B2ToScreen(vertices[(i + 1) % vertexCount]);
@@ -43,27 +43,26 @@ public:
         
         draw.DrawSolidPolygonFcn = [](b2Transform transform, const b2Vec2* vertices, int vertexCount, 
                                    float radius, b2HexColor color, void* context) {
-            auto* self = static_cast<RaylibDebugDraw*>(context);
+            auto* self = static_cast<Debug*>(context);
             Color fillColor = self->B2ColorToRaylib(color);
-            fillColor.a = 128;
             
             for (int i = 0; i < vertexCount; i++) {
                 b2Vec2 worldVert = b2TransformPoint(transform, vertices[i]);
                 Vector2 p1 = self->B2ToScreen(worldVert);
                 b2Vec2 worldVert2 = b2TransformPoint(transform, vertices[(i + 1) % vertexCount]);
                 Vector2 p2 = self->B2ToScreen(worldVert2);
-                DrawLineV(p1, p2, self->B2ColorToRaylib(color));
+                DrawLineV(p1, p2, fillColor);
             }
         };
         
         draw.DrawCircleFcn = [](b2Vec2 center, float radius, b2HexColor color, void* context) {
-            auto* self = static_cast<RaylibDebugDraw*>(context);
+            auto* self = static_cast<Debug*>(context);
             Vector2 c = self->B2ToScreen(center);
             DrawCircleLines(c.x, c.y, radius * self->pixelsPerMeter, self->B2ColorToRaylib(color));
         };
         
         draw.DrawSolidCircleFcn = [](b2Transform transform, float radius, b2HexColor color, void* context) {
-            auto* self = static_cast<RaylibDebugDraw*>(context);
+            auto* self = static_cast<Debug*>(context);
             Vector2 c = self->B2ToScreen(transform.p);
             Color fillColor = self->B2ColorToRaylib(color);
             fillColor.a = 128;
@@ -77,12 +76,12 @@ public:
         };
         
         draw.DrawLineFcn = [](b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context) {
-            auto* self = static_cast<RaylibDebugDraw*>(context);
+            auto* self = static_cast<Debug*>(context);
             DrawLineV(self->B2ToScreen(p1), self->B2ToScreen(p2), self->B2ColorToRaylib(color));
         };
         
         draw.DrawTransformFcn = [](b2Transform transform, void* context) {
-            auto* self = static_cast<RaylibDebugDraw*>(context);
+            auto* self = static_cast<Debug*>(context);
             const float axisScale = 0.4f;
             
             b2Vec2 p1 = transform.p;
@@ -96,13 +95,13 @@ public:
         };
         
         draw.DrawPointFcn = [](b2Vec2 p, float size, b2HexColor color, void* context) {
-            auto* self = static_cast<RaylibDebugDraw*>(context);
+            auto* self = static_cast<Debug*>(context);
             Vector2 point = self->B2ToScreen(p);
             DrawCircle(point.x, point.y, size, self->B2ColorToRaylib(color));
         };
         
         // draw.DrawStringFcn = [](b2Vec2 p, const char* s, void* context) {
-        //     auto* self = static_cast<RaylibDebugDraw*>(context);
+        //     auto* self = static_cast<Debug*>(context);
         //     Vector2 point = self->B2ToScreen(p);
         //     DrawText(s, point.x, point.y, 10, WHITE);
         // };
