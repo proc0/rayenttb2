@@ -33,8 +33,8 @@ Vector2 MapVector(b2Vec2 vec) {
     // half screen width/height - 15 for some reason
     // todo: why -15?
     return {
-        625 + vec.x * 10.0f,
-        345 - vec.y * 10.0f
+        640 + vec.x * 10.0f,
+        360 - vec.y * 10.0f
     };
 }
 
@@ -42,17 +42,19 @@ void UpdateBall(World& world) {
     auto const view = world.registry().view<CollisionData, TextureData>();
     for (auto [ent, col, tex] : view.each()) {
         b2Vec2 vel = b2Body_GetLinearVelocity(col.bodyId);
-        int speed = static_cast<int>(b2Length(vel))*3;
+        int speed = static_cast<int>(fabsf(b2Length(vel)))*8;
+        // float ang = b2Body_GetAngularVelocity(col.bodyId);
+        // float frame_speed = static_cast<int>(RAD2DEG*ang*speed/2);
 
-        if (speed > 60) {
-            speed = 60;
+        if (speed > 120) {
+            speed = 120;
         } else if (speed < 1) {
             speed = 1;
         }
 
         tex.frameCounter++;
 
-        if (tex.frameCounter >= (60/speed))
+        if (tex.frameCounter >= (120/speed))
         {
             tex.frameCounter = 0;
             tex.frameIndex++;
@@ -70,11 +72,12 @@ void DrawBall(const World& world) {
     for (auto [ent, col, tex] : view.each()) {
         b2Vec2 pos = b2Body_GetPosition(col.bodyId);
         b2Rot rot = b2Body_GetRotation(col.bodyId);
+        // float ang = b2Body_GetAngularVelocity(col.bodyId);
         float rad = b2Rot_GetAngle(rot);
         float angle = RAD2DEG*rad;
         Vector2 p = MapVector(pos);
         
-        DrawTexturePro(tex.texture, tex.frame, { p.x, p.y, 32, 32 }, {15, 15}, angle, WHITE);
+        DrawTexturePro(tex.texture, tex.frame, { p.x, p.y, 32, 32 }, {16, 16}, angle, WHITE);
         
         // auto& pos = view.get<Position>(entity);
         // auto& vel = view.get<Velocity>(entity);
@@ -159,6 +162,8 @@ void World::spawnDebris(int index)
     body.linearVelocity = { RandomFloatRange( -5.0f, 5.0f ), RandomFloatRange( -5.0f, 5.0f ) };
     body.angularVelocity = RandomFloatRange( -1.0f, 1.0f );
     body.gravityScale = 0.0f;
+    body.linearDamping = 0.2f;
+    body.angularDamping = 0.3f;
 
     // Create entity
     auto entity = _registry.create();
@@ -174,13 +179,11 @@ void World::spawnDebris(int index)
     
     // Create shape for body
     b2ShapeDef shape = b2DefaultShapeDef();
-    shape.material.restitution = 0.8f;
+    shape.material.restitution = 0.6f;
+    shape.density = 2500.0f;
 
     // No events when debris hits debris
     shape.enableContactEvents = false;
-
-
-    TraceLog(LOG_INFO, "pos %f, %f", body.position.x, body.position.y);
 
     b2Circle circle = { { 0.0f, 0.0f }, 1.4f };
     b2CreateCircleShape( m_debrisIds[index], &shape, &circle );
@@ -227,24 +230,12 @@ void World::resize(int width, int height) {
 }
 
 void World::update(){
-    // frameCounter++;
-
-    // if (frameCounter >= (60/frameSpeed))
-    // {
-    //     frameCounter = 0;
-    //     frameIndex++;
-
-    //     if (frameIndex > 31) frameIndex = 0;
-
-    //     ballRec.x = static_cast<float>(frameIndex*BALL_SIZE);
-    // }
     UpdateBall(*this);
     // CollisionSystem(*this);
     b2World_Step( worldId, timeStep, 4 );
 
-    // debug.render(worldId);
+    debug.render(worldId);
 
-    // b2World_Draw( worldId, &raylibDebugDraw.draw );
 }
 
 void World::unload(){
