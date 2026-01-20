@@ -9,20 +9,6 @@ class Debug {
     int screenWidth;
     int screenHeight;
 
-    Vector2 mapVector(b2Vec2 vec) const {
-        return {
-            offset.x + vec.x * pixelsPerMeter,
-            offset.y - vec.y * pixelsPerMeter
-        };
-    }
-    
-    Color mapColor(b2HexColor hexColor) const {
-        unsigned char r = (hexColor >> 16) & 0xFF;
-        unsigned char g = (hexColor >> 8) & 0xFF;
-        unsigned char b = hexColor & 0xFF;
-        return {r, g, b, 255};
-    }
-
 public:
     Debug(float ppm = 10.0f) : pixelsPerMeter(ppm) {
         // Initialize with defaults
@@ -115,6 +101,20 @@ public:
         };
     }
     
+    Vector2 mapVector(b2Vec2 vec) const {
+        return {
+            offset.x + vec.x * pixelsPerMeter,
+            offset.y - vec.y * pixelsPerMeter
+        };
+    }
+    
+    Color mapColor(b2HexColor hexColor) const {
+        unsigned char r = (hexColor >> 16) & 0xFF;
+        unsigned char g = (hexColor >> 8) & 0xFF;
+        unsigned char b = hexColor & 0xFF;
+        return {r, g, b, 255};
+    }
+
     void resize(int width, int height) {
         screenWidth = width;
         screenHeight = height;
