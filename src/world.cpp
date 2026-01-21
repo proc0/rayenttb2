@@ -164,8 +164,14 @@ void World::createPlayer(float x, float y) {
     bodyDef.isBullet = true;
 
     playerId = b2CreateBody( worldId, &bodyDef );
+    b2MassData massData = {
+        .mass = 5.0f,
+        .center = { 1.0f, 10.0f },
+        .rotationalInertia = 5.0f
+    };
+    b2Body_SetMassData(playerId, massData);
 
-    b2Polygon box = b2MakeBox( 1.0f, 10.0f );
+    b2Polygon box = b2MakeBox( 0.5f, 10.0f );
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 2000.0f;
     // Enable contact events for the player shape
@@ -267,7 +273,7 @@ void World::resize(int width, int height) {
 void World::update(){
 
 
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
         Vector2 mousePos = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
         b2Vec2 pos = UnmapVector(mousePos);
         TraceLog(LOG_INFO, "mousepose %f %f", pos.x, pos.y);
@@ -286,8 +292,12 @@ void World::update(){
 
         b2Vec2 position = b2Body_GetPosition( playerId );
         Vector2 mouseDelta = GetMouseDelta();
-        b2Vec2 force = { mouseDelta.x*1000000.0f, mouseDelta.y*-1000000.0f };
-        b2Body_ApplyForce( playerId, force, position, true );
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+            b2Vec2 force = { 0, mouseDelta.y*500000.0f };
+            b2Body_ApplyForce( playerId, force, position, true );
+        } else {
+            b2Body_ApplyAngularImpulse( playerId, mouseDelta.x*100000.0f, true);
+        }
     }
 
     UpdateBall(*this);

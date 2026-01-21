@@ -3,5 +3,5 @@
 #define PROJECT_NAME "rayenttb2"
 #define VERSION "0.1.0"
 #define DEBUG 1
-#define DATE_BUILD "2026-01-21 02:23:02"
+#define DATE_BUILD "2026-01-21 04:37:45"
 #define DIR_ASSETS "assets"

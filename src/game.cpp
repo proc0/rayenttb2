@@ -60,7 +60,7 @@ void Game::update(){
 
 void Game::render() const {
     BeginDrawing();
-        ClearBackground(GRAY);
+        ClearBackground(BLACK);
 
         world.render();
         display.render();
