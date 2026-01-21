@@ -70,6 +70,8 @@ struct BodyUserData {
 
 class World {
     b2BodyId m_debrisIds[ENT_COUNT];
+    b2BodyId playerId;
+    b2ShapeId playerShapeId;
     BodyUserData m_bodyUserData[ENT_COUNT];
     b2WorldId worldId = b2_nullWorldId;
     Texture2D ballTexture;
@@ -92,6 +94,7 @@ class World {
     void load();
     void createWorld();
     void createGround();
+    void createPlayer(float x, float y);
     void render() const;
     void resize(int width, int height);
     void spawnDebris(int index);
@@ -101,3 +104,5 @@ class World {
 };
 
 void MovementSystem(World &world);
+Vector2 MapVector(b2Vec2);
+b2Vec2 UnmapVector(Vector2);

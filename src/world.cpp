@@ -1,5 +1,6 @@
 #include "world.hpp"
 #include "box2d/box2d.h"
+#include "box2d/id.h"
 #include "box2d/math_functions.h"
 #include "raylib.h"
 // #include "raylib.h"
@@ -38,6 +39,15 @@ Vector2 MapVector(b2Vec2 vec) {
     };
 }
 
+b2Vec2 UnmapVector(Vector2 vec) {
+    // half screen width/height - 15 for some reason
+    // todo: why -15?
+    return {
+        (vec.x - 640.0f) / 10.0f,
+        (360.0f - vec.y) / 10.0f
+    };
+}
+
 void UpdateBall(World& world) {
     auto const view = world.registry().view<CollisionData, TextureData>();
     for (auto [ent, col, tex] : view.each()) {
@@ -49,9 +59,9 @@ void UpdateBall(World& world) {
         if (speed > 120) {
             speed = 120;
         } else if (speed < 1) {
-            if (fabsf(vel.x) <= 0.01 && fabsf(vel.y) <= 0.01) {
-                return;
-            }
+            // if (fabsf(vel.x) <= 0.01 && fabsf(vel.y) <= 0.01) {
+            //     return;
+            // }
 
             speed = 1;
         }
@@ -100,7 +110,8 @@ void World::load(){
 
     createWorld();
     createGround();
-
+    createPlayer(0, 0);
+    
     for (int i = 0; i < ENT_COUNT; ++i) {
         m_debrisIds[i] = b2_nullBodyId;
         m_bodyUserData[i].index = i;
@@ -141,6 +152,26 @@ void World::createGround() {
     chainDef.isLoop = true;
 
     b2CreateChain( groundId, &chainDef );
+}
+
+void World::createPlayer(float x, float y) {
+    b2BodyDef bodyDef = b2DefaultBodyDef();
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.position = { x, y };
+    bodyDef.gravityScale = 0.0f;
+    bodyDef.linearDamping = 0.5f;
+    bodyDef.angularDamping = 0.5f;
+    bodyDef.isBullet = true;
+
+    playerId = b2CreateBody( worldId, &bodyDef );
+
+    b2Polygon box = b2MakeBox( 1.0f, 10.0f );
+    b2ShapeDef shapeDef = b2DefaultShapeDef();
+    shapeDef.density = 2000.0f;
+    // Enable contact events for the player shape
+    shapeDef.enableContactEvents = true;
+
+    playerShapeId = b2CreatePolygonShape( playerId, &shapeDef, &box );
 }
 
 void World::spawnDebris(int index)
@@ -184,7 +215,7 @@ void World::spawnDebris(int index)
     // Create shape for body
     b2ShapeDef shape = b2DefaultShapeDef();
     shape.material.restitution = 0.6f;
-    shape.density = 3500.0f;
+    shape.density = 500.0f;
 
     // No events when debris hits debris
     shape.enableContactEvents = false;
@@ -234,6 +265,31 @@ void World::resize(int width, int height) {
 }
 
 void World::update(){
+
+
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mousePos = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
+        b2Vec2 pos = UnmapVector(mousePos);
+        TraceLog(LOG_INFO, "mousepose %f %f", pos.x, pos.y);
+
+        if (B2_IS_NON_NULL(playerId)) {
+            b2DestroyShape(playerShapeId, false);
+            b2DestroyBody(playerId);
+        }
+
+        createPlayer(static_cast<float>(pos.x), static_cast<float>(pos.y));
+
+        // b2Body_ApplyMassFromShapes(playerId);
+    }
+
+    if (B2_IS_NON_NULL(playerId)) {
+
+        b2Vec2 position = b2Body_GetPosition( playerId );
+        Vector2 mouseDelta = GetMouseDelta();
+        b2Vec2 force = { mouseDelta.x*1000000.0f, mouseDelta.y*-1000000.0f };
+        b2Body_ApplyForce( playerId, force, position, true );
+    }
+
     UpdateBall(*this);
     // CollisionSystem(*this);
     b2World_Step( worldId, timeStep, 4 );
