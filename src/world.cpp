@@ -42,13 +42,17 @@ void UpdateBall(World& world) {
     auto const view = world.registry().view<CollisionData, TextureData>();
     for (auto [ent, col, tex] : view.each()) {
         b2Vec2 vel = b2Body_GetLinearVelocity(col.bodyId);
-        int speed = static_cast<int>(fabsf(b2Length(vel)))*8;
+        int speed = static_cast<int>(fabsf(b2Length(vel)))*10;
         // float ang = b2Body_GetAngularVelocity(col.bodyId);
         // float frame_speed = static_cast<int>(RAD2DEG*ang*speed/2);
 
         if (speed > 120) {
             speed = 120;
         } else if (speed < 1) {
+            if (fabsf(vel.x) <= 0.01 && fabsf(vel.y) <= 0.01) {
+                return;
+            }
+
             speed = 1;
         }
 
@@ -162,8 +166,8 @@ void World::spawnDebris(int index)
     body.linearVelocity = { RandomFloatRange( -5.0f, 5.0f ), RandomFloatRange( -5.0f, 5.0f ) };
     body.angularVelocity = RandomFloatRange( -1.0f, 1.0f );
     body.gravityScale = 0.0f;
-    body.linearDamping = 0.2f;
-    body.angularDamping = 0.3f;
+    body.linearDamping = 0.15f;
+    body.angularDamping = 0.2f;
 
     // Create entity
     auto entity = _registry.create();
@@ -180,7 +184,7 @@ void World::spawnDebris(int index)
     // Create shape for body
     b2ShapeDef shape = b2DefaultShapeDef();
     shape.material.restitution = 0.6f;
-    shape.density = 2500.0f;
+    shape.density = 3500.0f;
 
     // No events when debris hits debris
     shape.enableContactEvents = false;
