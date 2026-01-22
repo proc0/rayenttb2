@@ -93,7 +93,6 @@ void DrawBall(const World& world) {
         b2Vec2 unitV = b2Normalize(vel);
         float angle = col.angle;
         if (unitV.x != 0.0f && unitV.y != 0.0f) {
-            // TraceLog(LOG_INFO, "pos %f %f", unitV.x, unitV.y);
             b2Rot rot = b2ComputeRotationBetweenUnitVectors(unitV, { 1.0f, 0 });
             float rad = b2Rot_GetAngle(rot);
             angle = RAD2DEG*rad;
@@ -104,11 +103,6 @@ void DrawBall(const World& world) {
         Vector2 p= MapVector(pos);
         
         DrawTexturePro(tex.texture, tex.frame, { p.x, p.y, 32, 32 }, { 16, 16 }, angle, WHITE);
-        
-        // auto& pos = view.get<Position>(entity);
-        // auto& vel = view.get<Velocity>(entity);
-        // pos.x += vel.x;
-        // pos.y += vel.y;
     }
 }
 
@@ -232,7 +226,7 @@ void World::spawnDebris(int index)
     body.userData = m_bodyUserData + index;
     b2BodyId bodyId = b2CreateBody( worldId, &body );
     m_debrisIds[index] = bodyId;
-    _registry.emplace<CollisionData>(entity, bodyId, 0);
+    _registry.emplace<CollisionData>(entity, bodyId, 0.0f);
     
     // Create shape for body
     b2ShapeDef shape = b2DefaultShapeDef();
