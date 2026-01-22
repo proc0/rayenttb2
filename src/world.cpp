@@ -2,7 +2,9 @@
 #include "box2d/box2d.h"
 #include "box2d/id.h"
 #include "box2d/math_functions.h"
+#include "box2d/types.h"
 #include "raylib.h"
+#include "raymath.h"
 // #include "raylib.h"
 
 // void MovementSystem(World& world) {
@@ -59,9 +61,9 @@ void UpdateBall(World& world) {
         if (speed > 120) {
             speed = 120;
         } else if (speed < 1) {
-            // if (fabsf(vel.x) <= 0.01 && fabsf(vel.y) <= 0.01) {
-            //     return;
-            // }
+            if (speed < 0.000001) {
+                continue;
+            }
 
             speed = 1;
         }
@@ -84,14 +86,24 @@ void UpdateBall(World& world) {
 void DrawBall(const World& world) {
     auto const view = world.registry().view<CollisionData, TextureData>();
     for (auto [ent, col, tex] : view.each()) {
-        b2Vec2 pos = b2Body_GetPosition(col.bodyId);
-        b2Rot rot = b2Body_GetRotation(col.bodyId);
+        // b2Vec2 pos = b2Body_GetPosition(col.bodyId);
+        // b2Rot rot = b2Body_GetRotation(col.bodyId);
         // float ang = b2Body_GetAngularVelocity(col.bodyId);
-        float rad = b2Rot_GetAngle(rot);
-        float angle = RAD2DEG*rad;
-        Vector2 p = MapVector(pos);
+        b2Vec2 vel = b2Body_GetLinearVelocity(col.bodyId);
+        b2Vec2 unitV = b2Normalize(vel);
+        float angle = col.angle;
+        if (unitV.x != 0.0f && unitV.y != 0.0f) {
+            // TraceLog(LOG_INFO, "pos %f %f", unitV.x, unitV.y);
+            b2Rot rot = b2ComputeRotationBetweenUnitVectors(unitV, { 1.0f, 0 });
+            float rad = b2Rot_GetAngle(rot);
+            angle = RAD2DEG*rad;
+            col.angle = angle;
+        }
+
+        b2Vec2 pos = b2Body_GetWorldPoint(col.bodyId, b2Vec2({ 0, 0 }));
+        Vector2 p= MapVector(pos);
         
-        DrawTexturePro(tex.texture, tex.frame, { p.x, p.y, 32, 32 }, {16, 16}, angle, WHITE);
+        DrawTexturePro(tex.texture, tex.frame, { p.x, p.y, 32, 32 }, { 16, 16 }, angle, WHITE);
         
         // auto& pos = view.get<Position>(entity);
         // auto& vel = view.get<Velocity>(entity);
@@ -203,9 +215,13 @@ void World::spawnDebris(int index)
     body.linearVelocity = { RandomFloatRange( -5.0f, 5.0f ), RandomFloatRange( -5.0f, 5.0f ) };
     body.angularVelocity = RandomFloatRange( -1.0f, 1.0f );
     body.gravityScale = 0.0f;
-    body.linearDamping = 0.15f;
-    body.angularDamping = 0.2f;
-
+    body.linearDamping = 0.8f;
+    // body.angularDamping = 0.5f;
+    body.motionLocks = {
+        .linearX = false,
+        .linearY = false,
+        .angularZ = true,
+    };
     // Create entity
     auto entity = _registry.create();
     _registry.emplace<EntityId>(entity);
@@ -216,12 +232,12 @@ void World::spawnDebris(int index)
     body.userData = m_bodyUserData + index;
     b2BodyId bodyId = b2CreateBody( worldId, &body );
     m_debrisIds[index] = bodyId;
-    _registry.emplace<CollisionData>(entity, bodyId);
+    _registry.emplace<CollisionData>(entity, bodyId, 0);
     
     // Create shape for body
     b2ShapeDef shape = b2DefaultShapeDef();
     shape.material.restitution = 0.6f;
-    shape.density = 500.0f;
+    shape.density = 1500.0f;
 
     // No events when debris hits debris
     shape.enableContactEvents = false;
@@ -276,7 +292,6 @@ void World::update(){
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
         Vector2 mousePos = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
         b2Vec2 pos = UnmapVector(mousePos);
-        TraceLog(LOG_INFO, "mousepose %f %f", pos.x, pos.y);
 
         if (B2_IS_NON_NULL(playerId)) {
             b2DestroyShape(playerShapeId, false);

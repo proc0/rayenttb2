@@ -54,7 +54,7 @@ B2_INLINE float RandomFloatRange( float lo, float hi )
 // typedef struct Position { float x; float y; } Position;
 // typedef struct Velocity { float x; float y; } Velocity;
 typedef struct EntityId {} EntityId;
-typedef struct CollisionData { b2BodyId bodyId; } CollisionData;
+typedef struct CollisionData { b2BodyId bodyId; float angle; } CollisionData;
 typedef struct TextureData {
     Rectangle frame = { 0, 0, BALL_SIZE, BALL_SIZE };
     Texture2D& texture;
