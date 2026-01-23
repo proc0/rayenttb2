@@ -1,58 +1,13 @@
 #include "world.hpp"
 
-// #include "raylib.h"
-
-// void MovementSystem(World& world) {
-//     auto view = world.registry().view<Position, Velocity>();
-//     for (auto [ent, pos, vel] : view.each()) {
-//         // auto& pos = view.get<Position>(entity);
-//         // auto& vel = view.get<Velocity>(entity);
-//         pos.x += vel.x;
-//         pos.y += vel.y;
-//     }
-// }
-
-// void CollisionSystem(World& world) {
-//     auto const view = world.registry().view<CollisionData>();
-//     for (auto [ent, collision] : view.each()) {
-//         b2Vec2 vel = b2Body_GetLinearVelocity(collision.bodyId);
-
-//         if (fabsf(vel.x) > 20.0f) {
-//             TraceLog(LOG_INFO, "HAH");
-//         }
-//         // auto& pos = view.get<Position>(entity);
-//         // auto& vel = view.get<Velocity>(entity);
-//         // pos.x += vel.x;
-//         // pos.y += vel.y;
-//     }
-// }
-
-Vector2 MapVector(b2Vec2 vec) {
-    // half screen width/height - 15 for some reason
-    // todo: why -15?
-    return {
-        640 + vec.x * 10.0f,
-        360 - vec.y * 10.0f
-    };
-}
-
-b2Vec2 UnmapVector(Vector2 vec) {
-    // half screen width/height - 15 for some reason
-    // todo: why -15?
-    return {
-        (vec.x - 640.0f) / 10.0f,
-        (360.0f - vec.y) / 10.0f
-    };
-}
-
 void UpdateBall(World& world) {
     auto const view = world.registry().view<CollisionData, TextureData>();
     for (auto [ent, col, tex] : view.each()) {
         b2Vec2 vel = b2Body_GetLinearVelocity(col.bodyId);
         int speed = static_cast<int>(fabsf(b2Length(vel)))*10;
-        // float ang = b2Body_GetAngularVelocity(col.bodyId);
-        // float frame_speed = static_cast<int>(RAD2DEG*ang*speed/2);
 
+        // TODO: figure out if this needs to be the FPS, and
+        // whether to pass through with Screen for Web (how to find out Web FPS?)
         if (speed > 120) {
             speed = 120;
         } else if (speed < 1) {
@@ -81,9 +36,6 @@ void UpdateBall(World& world) {
 void DrawBall(const World& world) {
     auto const view = world.registry().view<CollisionData, TextureData>();
     for (auto [ent, col, tex] : view.each()) {
-        // b2Vec2 pos = b2Body_GetPosition(col.bodyId);
-        // b2Rot rot = b2Body_GetRotation(col.bodyId);
-        // float ang = b2Body_GetAngularVelocity(col.bodyId);
         b2Vec2 vel = b2Body_GetLinearVelocity(col.bodyId);
         b2Vec2 unitV = b2Normalize(vel);
         float angle = col.angle;
@@ -95,15 +47,13 @@ void DrawBall(const World& world) {
         }
 
         b2Vec2 pos = b2Body_GetWorldPoint(col.bodyId, b2Vec2({ 0, 0 }));
-        Vector2 p= MapVector(pos);
+        Vector2 p= world.screen.b2Vec2ToVector2(pos);
         
         DrawTexturePro(tex.texture, tex.frame, { p.x, p.y, 32, 32 }, { 16, 16 }, angle, WHITE);
     }
 }
 
 void World::load(){
-
-    // spawnParticle(100.0f, 100.0f);
     // b2SetLengthUnitsPerMeter( 10.0f );
     std::string pathAssets = DIR_ASSETS;
     const char* pathBallTexture = pathAssets.append("/").append(TEXTURE_BALL_URI).c_str();
@@ -199,7 +149,6 @@ void World::spawnDebris(int index)
     b2BodyDef body = b2DefaultBodyDef();
     body.type = b2_dynamicBody;
     body.position = { RandomFloatRange( -38.0f, 38.0f ), RandomFloatRange( -28.0f, 28.0f ) };
-    // body.position = { static_cast<float>(GetRandomValue( -38.0f, 38.0f )), static_cast<float>(GetRandomValue( -28.0f, 28.0f )) };
     body.rotation = b2MakeRot( RandomFloatRange( -B2_PI, B2_PI ) );
     body.linearVelocity = { RandomFloatRange( -5.0f, 5.0f ), RandomFloatRange( -5.0f, 5.0f ) };
     body.angularVelocity = RandomFloatRange( -1.0f, 1.0f );
@@ -233,22 +182,6 @@ void World::spawnDebris(int index)
 
     b2Circle circle = { { 0.0f, 0.0f }, 1.4f };
     b2CreateCircleShape( m_debrisIds[index], &shape, &circle );
-    // if (( index + 1 ) % 3 == 0) {
-    //     b2Circle circle = { { 0.0f, 0.0f }, 1.4f };
-        
-    //     b2CreateCircleShape( m_debrisIds[index], &shape, &circle );
-    // } 
-    // // else if (( index + 1 ) % 2 == 0) {
-    // //     b2Capsule capsule = { { 0.0f, -0.25f }, { 0.0f, 0.25f }, 0.75f };
-        
-    // //     b2CreateCapsuleShape( m_debrisIds[index], &shape, &capsule );
-    // // } 
-    // else {
-    //     b2Polygon box = b2MakeBox( 0.4f, 1.0f );
-        
-    //     b2CreatePolygonShape( m_debrisIds[index], &shape, &box );
-    // }
-
 }
 
 void World::render() const {
@@ -261,26 +194,15 @@ void World::render() const {
     DrawBall(*this);
 }
 
-// entt::entity World::spawnParticle(float x, float y) {
-//     auto entity = _registry.create();
-//     _registry.emplace<ParticleTag>(entity);
-//     _registry.emplace<Position>(entity, x, y);
-//     _registry.emplace<Velocity>(entity, 1.0f, 1.0f);
-//     return entity;
-// }
-
 void World::resize(int width, int height) {
     screenWidth = width;
     screenHeight = height;
-    debug.resize(width, height);
 }
 
 void World::update(){
-
-
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
         Vector2 mousePos = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
-        b2Vec2 pos = UnmapVector(mousePos);
+        b2Vec2 pos = screen.vector2Tob2Vec2(mousePos);
 
         if (B2_IS_NON_NULL(playerId)) {
             b2DestroyShape(playerShapeId, false);
@@ -305,7 +227,6 @@ void World::update(){
     }
 
     UpdateBall(*this);
-    // CollisionSystem(*this);
     b2World_Step( worldId, timeStep, 4 );
 
     debug.render(worldId);

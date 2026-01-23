@@ -7,11 +7,13 @@
 #include <raylib.h> // IWYU pragma: export
 
 #include "config.h" // IWYU pragma: keep
+#include "screen.hpp" // IWYU pragma: keep
 #include "display.hpp"
 
 // initial settings
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
+#define PIXELS_PER_METER 10.0f
 #define TARGET_FPS 120
 
 #ifdef __EMSCRIPTEN__
@@ -24,6 +26,7 @@ static inline constexpr auto RESIZE_COOLDOWN = std::chrono::milliseconds(300);
 
 class Game {
     World world;
+    Screen screen = Screen(SCREEN_WIDTH, SCREEN_HEIGHT, PIXELS_PER_METER);
     // Camera2D camera;
     Display display;
     entt::registry registry_;
@@ -45,7 +48,7 @@ class Game {
     int screenWidth = SCREEN_WIDTH;
     int screenHeight = SCREEN_HEIGHT;
     
-    Game(): world(registry_) {};
+    Game(): world(registry_, screen) {};
     ~Game() = default;
 
     entt::registry& registry() { return registry_; }

@@ -140,6 +140,7 @@ void Game::resize() {
     if(screenHeight != height || screenWidth != width || state == BEGIN){
         screenWidth = width; 
         screenHeight = height;
+        screen.resize(width, height);
         world.resize(width, height);
         display.resize(width, height);
     #if __EMSCRIPTEN__
