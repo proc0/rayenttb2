@@ -1,10 +1,5 @@
 #include "world.hpp"
-#include "box2d/box2d.h"
-#include "box2d/id.h"
-#include "box2d/math_functions.h"
-#include "box2d/types.h"
-#include "raylib.h"
-#include "raymath.h"
+
 // #include "raylib.h"
 
 // void MovementSystem(World& world) {

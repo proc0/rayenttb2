@@ -4,7 +4,7 @@
 #include <emscripten.h>
 #endif
 #include <chrono>
-#include <raylib.h>
+#include <raylib.h> // IWYU pragma: export
 
 #include "config.h" // IWYU pragma: keep
 #include "display.hpp"

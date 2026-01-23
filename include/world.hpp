@@ -1,12 +1,12 @@
 #pragma once
 
 #include <string> // IWYU pragma: export
-#include <raylib.h>
-#include <entt/entt.hpp>
-#include <box2d/id.h>
-#include <box2d/types.h>
-#include <box2d/box2d.h>
-#include <box2d/math_functions.h>
+#include <raylib.h> // IWYU pragma: export
+#include <entt/entt.hpp> // IWYU pragma: export
+#include <box2d/id.h> // IWYU pragma: export
+#include <box2d/types.h> // IWYU pragma: export
+#include <box2d/box2d.h> // IWYU pragma: export
+#include <box2d/math_functions.h> // IWYU pragma: export
 
 #include "config.h"
 #include "debug.hpp"

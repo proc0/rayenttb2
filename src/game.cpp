@@ -1,5 +1,4 @@
 #include "game.hpp"
-#include "raylib.h"
 
 void Game::update(){
     if(state == END) return;
