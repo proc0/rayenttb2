@@ -1,5 +1,20 @@
 #include "game.hpp"
 
+void Game::load(){
+    resize();
+    display.load();
+    world.load();
+}
+
+void Game::render() const {
+    BeginDrawing();
+        ClearBackground(BLACK);
+
+        world.render();
+        display.render();
+    EndDrawing();
+}
+
 void Game::update(){
     if(state == END) return;
 
@@ -57,35 +72,6 @@ void Game::update(){
     }
 }
 
-void Game::render() const {
-    BeginDrawing();
-        ClearBackground(BLACK);
-
-        world.render();
-        display.render();
-
-        // if(state == PLAY){
-        //     DrawCircleV(GetMousePosition(), 40, YELLOW);
-        // }
-    EndDrawing();
-    // BeginMode2D(camera);
-    //     world.render();
-    // EndMode2D();
-}
-
-void Game::load(){
-    // camera.offset = { 0.0f, 0.0f };
-    // camera.target = { 0.0f, 0.0f };
-    // camera.rotation = 0.0f;
-    // camera.zoom = 1.0f;
-    // camera.up = { 0.0f, 1.0f };
-    // camera.fovy = 45.0f;
-    // camera.projection = CAMERA_PERSPECTIVE;
-    resize();
-    world.load();
-    display.load();
-}
-
 void Game::unload(){
     world.unload();
     display.unload();
@@ -93,24 +79,30 @@ void Game::unload(){
 
 void Game::loop(void* self) {
     Game* game = static_cast<Game*>(self);
-    #ifdef __EMSCRIPTEN__
+
+#ifdef __EMSCRIPTEN__
     if (!game->isRunning()) return;
-    #endif
+#endif
+
     game->update();
     game->render();
+
+#if DEBUG 
+    game->debugRender();
+#endif
 }
 
 void Game::run() {
     resize();
-    #ifdef __EMSCRIPTEN__
-        // no target FPS (3rd param) for performance
-        emscripten_set_main_loop_arg(loop, this, 0, 1);
-    #else
-        SetTargetFPS(TARGET_FPS);
-        while (!WindowShouldClose() && isRunning()) {
-            loop(this);
-        }
-    #endif
+#ifdef __EMSCRIPTEN__
+    // no target FPS (3rd param) for performance
+    emscripten_set_main_loop_arg(loop, this, 0, 1);
+#else
+    SetTargetFPS(TARGET_FPS);
+    while (!WindowShouldClose() && isRunning()) {
+        loop(this);
+    }
+#endif
 }
 
 const bool Game::isRunning() const {
@@ -141,7 +133,6 @@ void Game::resize() {
         screenWidth = width; 
         screenHeight = height;
         screen.resize(width, height);
-        world.resize(width, height);
         display.resize(width, height);
     #if __EMSCRIPTEN__
         SetWindowSize(screenWidth, screenHeight);
@@ -150,4 +141,8 @@ void Game::resize() {
 
     lastResize = std::chrono::steady_clock::now();
     TraceLog(LOG_INFO, "Window resized %dx%d", screenWidth, screenHeight);
+}
+
+void Game::debugRender() {
+    world.debugRender();
 }

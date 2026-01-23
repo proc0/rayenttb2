@@ -4,16 +4,9 @@
 #include <emscripten.h>
 #endif
 #include <chrono>
-#include <raylib.h> // IWYU pragma: export
 
-#include "config.h" // IWYU pragma: keep
-#include "screen.hpp" // IWYU pragma: keep
 #include "display.hpp"
 
-// initial settings
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
-#define PIXELS_PER_METER 10.0f
 #define TARGET_FPS 120
 
 #ifdef __EMSCRIPTEN__
@@ -25,13 +18,6 @@
 static inline constexpr auto RESIZE_COOLDOWN = std::chrono::milliseconds(300);
 
 class Game {
-    World world;
-    Screen screen = Screen(SCREEN_WIDTH, SCREEN_HEIGHT, PIXELS_PER_METER);
-    // Camera2D camera;
-    Display display;
-    entt::registry registry_;
-
-    std::chrono::steady_clock::time_point lastResize = std::chrono::steady_clock::now();
     enum State {
         BEGIN, // initialization
         START, // intro and menu screen
@@ -42,20 +28,25 @@ class Game {
         WIN,   // win conditions met
         END    // breaks loop
     };
+
+    World world;
+    Screen screen = Screen(SCREEN_WIDTH, SCREEN_HEIGHT, PIXELS_PER_METER);
+    Display display;
+    std::chrono::steady_clock::time_point lastResize = std::chrono::steady_clock::now();
     State state = BEGIN;
     
     public:
     int screenWidth = SCREEN_WIDTH;
     int screenHeight = SCREEN_HEIGHT;
     
-    Game(): world(registry_, screen) {};
+    Game(): world(screen) {};
     ~Game() = default;
 
-    entt::registry& registry() { return registry_; }
     const bool isRunning() const;
     void load();
     static void loop(void* self);
     void render() const;
+    void debugRender();
     void resize();
     void run();
     void unload();

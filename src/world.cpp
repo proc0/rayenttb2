@@ -1,4 +1,5 @@
 #include "world.hpp"
+#include "box2d/id.h"
 
 void World::load(){
     // b2SetLengthUnitsPerMeter( 10.0f );
@@ -9,10 +10,7 @@ void World::load(){
     
     ball.load();
 
-    for (int i = 0; i < ENT_COUNT; ++i) {
-        m_debrisIds[i] = b2_nullBodyId;
-        m_bodyUserData[i].index = i;
-        m_bodyUserData[i].entId = entt::null;
+    for (int i = 0; i < BALL_COUNT; ++i) {
         createBall(i);
     }
 }
@@ -28,7 +26,6 @@ void World::createWorld() {
     worldDef.enableContactSoftening = true;
 
     worldId = b2CreateWorld(&worldDef);
-    // b2World_SetGravity(worldId, { 0.0f, -10.0f });
 }
 
 void World::createContainer() {
@@ -72,21 +69,16 @@ void World::createPlayer(float x, float y) {
 }
 
 void World::createBall(int index) {
-    BallUserData ballData = ball.create(_registry, worldId, m_bodyUserData, index);
-    m_bodyUserData[index] = ballData;
-    m_debrisIds[index] = ballData.bodyId;
+    BallUserData ballData = ball.create(registry, worldId, ballUserData, index);
+    ballUserData[index] = ballData;
+    ballIds[index] = ballData.bodyId;
 }
 
 void World::render() const {
-    auto const view = registry().view<BallCollision, BallFrame>();
+    auto const view = registry.view<BallCollision, BallFrame>();
     for (auto [ent, col, tex] : view.each()) {
         ball.render(col, tex);
     }
-}
-
-void World::resize(int width, int height) {
-    screenWidth = width;
-    screenHeight = height;
 }
 
 void World::update(){
@@ -100,8 +92,6 @@ void World::update(){
         }
 
         createPlayer(static_cast<float>(pos.x), static_cast<float>(pos.y));
-
-        // b2Body_ApplyMassFromShapes(playerId);
     }
 
     if (B2_IS_NON_NULL(playerId)) {
@@ -116,14 +106,16 @@ void World::update(){
         }
     }
 
-    auto const view = registry().view<BallCollision, BallFrame>();
+    auto const view = registry.view<BallCollision, BallFrame>();
     for (auto [ent, col, tex] : view.each()) {
         ball.update(col, tex);
     }
 
-    b2World_Step( worldId, timeStep, 4 );
+    b2World_Step( worldId, TIME_STEP, SUB_STEP );
+}
 
-    debug.render(worldId);
+void World::debugRender() {
+    debug.render(worldId);    
 }
 
 void World::unload(){
